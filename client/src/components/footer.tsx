@@ -74,12 +74,17 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-300">&copy; 2024 TajByHand. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Refund Policy</a>
+        <div className="border-t border-gray-700 mt-8 pt-8">
+          <div className="text-center mb-4">
+            <p className="text-sm font-medium text-primary">Built by IITians. Trusted by locals. Loved by travelers.</p>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-gray-300">&copy; 2024 TajByHand. All rights reserved.</p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Privacy Policy</a>
+              <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Terms of Service</a>
+              <a href="#" className="text-sm text-gray-300 hover:text-primary transition-colors">Refund Policy</a>
+            </div>
           </div>
         </div>
       </div>

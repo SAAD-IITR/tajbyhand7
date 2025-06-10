@@ -72,7 +72,7 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
       <div className="relative overflow-hidden">
         <img 
           src={product.imageUrl} 
-          alt={product.name}
+          alt={`${product.name} - ${product.category.toLowerCase()} by local artisan delivered to hotel`}
           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
             e.currentTarget.src = "https://via.placeholder.com/400x300?text=Product+Image";

@@ -1,5 +1,5 @@
 export function generateWhatsAppURL(productName: string, hotelName: string): string {
-  const phoneNumber = process.env.WHATSAPP_NUMBER || '919876543210';
+  const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '7417994386';
   
   let message: string;
   

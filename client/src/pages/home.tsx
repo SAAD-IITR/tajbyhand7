@@ -9,6 +9,7 @@ import FAQSection from "@/components/faq-section";
 import Testimonials from "@/components/testimonials";
 import Footer from "@/components/footer";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
+import StickyWhatsAppMobile from "@/components/sticky-whatsapp-mobile";
 
 export default function Home() {
   const [location] = useLocation();
@@ -35,6 +36,7 @@ export default function Home() {
       <Testimonials />
       <Footer />
       <FloatingWhatsApp hotelName={hotelName} />
+      <StickyWhatsAppMobile hotelName={hotelName} />
     </div>
   );
 }
