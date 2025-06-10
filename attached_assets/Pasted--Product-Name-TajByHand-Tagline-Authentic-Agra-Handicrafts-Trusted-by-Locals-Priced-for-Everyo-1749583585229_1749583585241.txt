@@ -1,0 +1,201 @@
+ Product Name: TajByHand
+Tagline:
+
+“Authentic Agra Handicrafts. Trusted by Locals. Priced for Everyone.”
+
+🧠 1. OBJECTIVE
+Create a full-stack MERN (MongoDB, Express, React, Node.js) e-commerce-like platform that mimics a static-feeling site, but is fully dynamic and scalable. Core selling flow is WhatsApp-based Cash on Delivery (COD). The platform is for foreign tourists in Agra hotels, accessed via QR codes at receptions.
+
+🔄 2. PRIMARY USER FLOW
+vbnet
+Copy
+Edit
+Guest scans hotel QR → 
+Landing page opens → 
+Browse handmade items → 
+Click “Order via WhatsApp” →
+WhatsApp opens with hotel + product message → 
+TajByHand receives → 
+Delivers COD to hotel room.
+Backend logs all orders and hotel referrers for commission and reporting.
+
+👥 3. USER ROLES
+Role	Description	Access
+Guest	Tourist viewing & ordering souvenirs	Frontend (React)
+Hotel Staff	Refers tourists by sharing QR codes	QR Code (parameter tracking)
+Admin	Manages products, views orders, calculates commissions	Backend + Dashboard
+Artisan (Later)	Uploads products & views analytics	Future roadmap
+
+🌍 4. TECHNOLOGY STACK
+Layer	Tech
+Frontend	React + TailwindCSS + framer-motion
+Backend API	Node.js + Express
+Database	MongoDB Atlas
+Hosting FE	Vercel / Netlify
+Hosting BE	Render / Railway / Heroku
+Messaging	WhatsApp via wa.me prefilled URLs
+Authentication	JWT for admin routes
+
+🧱 5. DATA MODELS
+🧾 Product Schema (products)
+json
+Copy
+Edit
+{
+  "_id": "ObjectId",
+  "name": "Marble Taj 12-inch",
+  "description": "White marble with inlay work",
+  "price": 2800,
+  "imageUrl": "https://...",
+  "stock": 15,
+  "isFeatured": true,
+  "createdAt": "ISODate"
+}
+📦 Order Schema (orders)
+json
+Copy
+Edit
+{
+  "_id": "ObjectId",
+  "productId": "ObjectId",
+  "hotelCode": "pearl",
+  "whatsappNumber": "+91...",
+  "timestamp": "ISODate",
+  "status": "pending" | "fulfilled",
+  "messageText": "Hi, I want..."
+}
+🏨 Hotel Schema (hotels)
+json
+Copy
+Edit
+{
+  "_id": "ObjectId",
+  "hotelCode": "pearl",
+  "hotelName": "Pearl Heritage",
+  "commissionRate": 10
+}
+💡 6. FUNCTIONAL MODULES
+🔹 6.1 Frontend UI (React)
+Hero section with trust-building text
+
+Product grid from /api/products
+
+Product card with image, name, price, WhatsApp CTA
+
+Floating WhatsApp icon (persistent)
+
+FAQ section (accordions)
+
+Trust section (comparison table)
+
+URL param ?hotel=pearl determines hotel code
+
+🔹 6.2 WhatsApp Integration
+On "Order" click:
+
+Log order via POST /api/orders
+
+Redirect to:
+https://wa.me/9198XXXXXXX?text=${encodedMessage}
+
+Message format:
+
+css
+Copy
+Edit
+Hi, I’d like to order the 12” Marble Taj Mahal.
+I’m staying at Pearl Heritage Hotel.
+🔹 6.3 Admin Panel
+Login using JWT
+
+Create/update/delete products
+
+View order table with filters (date, hotel, product)
+
+Mark orders as fulfilled
+
+Auto-calculate commission per hotel
+
+📄 7. API ENDPOINTS
+/api/products
+GET → List all
+
+POST (auth) → Add
+
+PUT/:id (auth) → Edit
+
+DELETE/:id (auth) → Remove
+
+/api/orders
+POST → Log order (from frontend)
+
+GET (auth) → Fetch orders
+
+PATCH/:id (auth) → Mark fulfilled
+
+/api/auth
+POST /login → Get JWT
+
+🛠 8. AI CURSOR TASK DECOMPOSITION
+Module	Description
+Setup React + Tailwind	Initialize frontend
+Build ProductCard	Props: image, title, price, hotel
+Connect MongoDB	Use Mongoose schemas
+Express server	REST API + JWT middleware
+WhatsApp CTA Generator	Function to generate dynamic links
+Admin Panel UI	Basic CRUD + order view
+QR Generator (Optional)	Tool to generate hotel-specific QR codes
+
+✅ 9. MVP CHECKLIST
+ Hotel QR opens personalized React site
+
+ Product listing from MongoDB
+
+ WhatsApp ordering with dynamic message
+
+ Backend logs orders
+
+ Admin can log in, update products, mark orders
+
+ Commission report per hotel (manual or CSV)
+
+📈 10. SUCCESS METRICS (Month 1)
+KPI	Target
+QR Scans	200+
+WhatsApp Orders	50+
+Fulfilled Deliveries	30+
+Avg. Order Size	₹2200
+Tourist Feedback	>4.5/5
+Hotel Referrals	>5 Active
+
+🚀 11. FUTURE ROADMAP
+Multilingual support (EN, FR, DE, ES, HIN)
+
+Hotel dashboard for commission payouts
+
+WhatsApp Business API (for automated flows)
+
+Artisan onboarding panel
+
+Location-based delivery coordination
+
+Expansion to Jaipur, Udaipur, Varanasi
+
+🧠 12. TRUST & UX STRATEGY
+Why Users Trust Us:
+No online payment: WhatsApp + COD = Zero risk
+
+IIT alumni backed: Mentioned clearly in UI
+
+Transparent pricing: Compare showroom vs real prices
+
+Professional design: Clean, modern UI with fast loading
+
+Floating WhatsApp CTA: Always ready to assist
+
+💬 FINAL WORDS
+Most tourists never realize they’re paying 3x more — because they trust their guide.
+
+TajByHand is your way of saying — no more.
+Let guests order directly, transparently, and safely — via WhatsApp.
+And let our beautifully built website speak for itself.” 
