@@ -15,18 +15,18 @@ export default function Header() {
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-6">
+            <div className="flex items-center space-x-2 text-sm font-semibold text-accent bg-accent/10 px-3 py-1 rounded-full">
+              <span>💬</span>
+              <span>Order via WhatsApp</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
+              <span>💰</span>
+              <span>Pay on Delivery</span>
+            </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Shield className="w-4 h-4 text-trust" />
               <span>Trusted by Locals</span>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <GraduationCap className="w-4 h-4 text-trust" />
-              <span>IIT Alumni Backed</span>
-            </div>
-            <button className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center space-x-1">
-              <span>EN</span>
-              <Menu className="w-3 h-3" />
-            </button>
           </div>
         </div>
       </div>

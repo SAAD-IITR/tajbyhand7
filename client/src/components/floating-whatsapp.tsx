@@ -17,11 +17,15 @@ export default function FloatingWhatsApp({ hotelName }: FloatingWhatsAppProps) {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
+      {/* Pulse ring animation */}
+      <div className="absolute inset-0 w-14 h-14 bg-accent rounded-full animate-ping opacity-20"></div>
+      <div className="absolute inset-1 w-12 h-12 bg-accent rounded-full animate-pulse opacity-30"></div>
+      
       <motion.button
         onClick={handleClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="w-14 h-14 bg-accent text-white rounded-full shadow-lg hover:bg-accent/90 transition-all duration-300 flex items-center justify-center group"
+        className="relative w-14 h-14 bg-accent text-white rounded-full shadow-xl hover:bg-accent/90 transition-all duration-300 flex items-center justify-center group border-2 border-white"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         initial={{ scale: 0 }}
@@ -30,15 +34,21 @@ export default function FloatingWhatsApp({ hotelName }: FloatingWhatsAppProps) {
       >
         <MessageCircle className="w-6 h-6" />
         
+        {/* Badge indicator */}
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+          <span className="text-xs text-white font-bold">!</span>
+        </div>
+        
         <AnimatePresence>
           {showTooltip && (
             <motion.div
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
-              className="absolute right-16 bg-secondary text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap pointer-events-none"
+              className="absolute right-16 bg-secondary text-white px-4 py-3 rounded-lg text-sm whitespace-nowrap pointer-events-none shadow-lg"
             >
-              Need help? Chat with us!
+              <div className="font-semibold">Order via WhatsApp</div>
+              <div className="text-xs text-gray-300">Free delivery to hotel!</div>
               <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 w-2 h-2 bg-secondary rotate-45"></div>
             </motion.div>
           )}

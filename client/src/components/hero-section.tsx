@@ -61,8 +61,8 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
-              Skip the tourist traps. Get genuine marble inlay work, wood carvings, and textiles directly from local artisans.{" "}
-              <strong className="text-secondary">Delivered to your hotel room.</strong>
+              No showroom tricks. No guide cuts. Just real Agra handicrafts —{" "}
+              <strong className="text-secondary">delivered to your hotel.</strong>
             </motion.p>
 
             <motion.div 
@@ -90,10 +90,35 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
             </motion.div>
 
             <motion.div 
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200"
+              className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.6 }}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-amber-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  M
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-700 italic mb-2">
+                    "Got my marble elephant at half the price my guide quoted. Delivered to my room in 45 mins!"
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-semibold text-secondary">Maria</span>
+                    <span className="text-xl">🇪🇸</span>
+                    <div className="flex text-yellow-400 text-sm">
+                      ⭐⭐⭐⭐⭐
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="grid grid-cols-3 gap-6 pt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">50+</div>
