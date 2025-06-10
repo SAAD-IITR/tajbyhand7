@@ -1,6 +1,6 @@
+import { APP_CONFIG } from "@/config/constants";
+
 export function generateWhatsAppURL(productName: string, hotelName: string): string {
-  const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '7417994386';
-  
   let message: string;
   
   if (productName === "general inquiry") {
@@ -9,7 +9,7 @@ export function generateWhatsAppURL(productName: string, hotelName: string): str
     message = `Hi, I'd like to order the ${productName}. I'm staying at ${hotelName}.`;
   }
   
-  return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${APP_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
 export function generateSupportWhatsAppURL(hotelName: string): string {

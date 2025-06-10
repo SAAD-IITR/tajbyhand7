@@ -146,6 +146,7 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
                 src="https://pixabay.com/get/gc8745debbad7a3449b142f6ebe942237e02afee4581a9f5d03a5552573b84dcae1b8cddd69c887c303040e6e0fb5f59920edf7c7f42eb3046c62c599ed98f246_1280.jpg" 
                 alt="Handmade marble inlay Taj Mahal replica from Agra delivered to hotel" 
                 className="w-full h-auto" 
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">

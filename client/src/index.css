@@ -94,8 +94,23 @@
 
   /* Mobile responsive improvements */
   @media (max-width: 768px) {
+    .main-content {
+      padding-bottom: 90px; /* Account for sticky button */
+    }
+    
+    /* Smooth scrolling for better UX */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Prevent horizontal scroll on mobile */
     body {
-      padding-bottom: 80px; /* Account for sticky button */
+      overflow-x: hidden;
+    }
+    
+    /* Better touch targets */
+    button, a {
+      min-height: 44px;
     }
   }
 }

@@ -27,13 +27,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <HeroSection hotelName={hotelName} hotelCode={hotelCode} />
-      <TrustIndicators />
-      <ComparisonTable />
-      <ProductGrid hotelCode={hotelCode} hotelName={hotelName} />
-      <ProcessSection />
-      <FAQSection />
-      <Testimonials />
+      <div className="main-content">
+        <HeroSection hotelName={hotelName} hotelCode={hotelCode} />
+        <TrustIndicators />
+        <ComparisonTable />
+        <ProductGrid hotelCode={hotelCode} hotelName={hotelName} />
+        <ProcessSection />
+        <FAQSection />
+        <Testimonials />
+      </div>
       <Footer />
       <FloatingWhatsApp hotelName={hotelName} />
       <StickyWhatsAppMobile hotelName={hotelName} />
