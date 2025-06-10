@@ -87,4 +87,15 @@
   .bg-trust\/20 {
     background-color: hsl(var(--trust) / 0.2);
   }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile responsive improvements */
+  @media (max-width: 768px) {
+    body {
+      padding-bottom: 80px; /* Account for sticky button */
+    }
+  }
 }

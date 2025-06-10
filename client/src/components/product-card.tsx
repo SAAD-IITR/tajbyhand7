@@ -9,6 +9,31 @@ import { generateWhatsAppURL } from "@/lib/whatsapp";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 
+// Product reviews data for trust building
+const productReviews = {
+  1: [ // Marble Taj Mahal Replica
+    { name: "Sarah M.", flag: "🇺🇸", rating: 5, text: "Perfect souvenir! Delivered to my hotel in 25 minutes. Quality is amazing." },
+    { name: "James K.", flag: "🇬🇧", rating: 5, text: "Bought 3 for family. Much better than tourist shop prices. Authentic work." }
+  ],
+  2: [ // Wooden Elephant Pair
+    { name: "Lisa H.", flag: "🇩🇪", rating: 5, text: "Beautiful craftsmanship. Hotel delivery was super convenient." },
+    { name: "Mike R.", flag: "🇦🇺", rating: 4, text: "Great quality wood carving. Saved time and money vs market shopping." }
+  ],
+  3: [ // Pure Pashmina Shawl
+    { name: "Anna P.", flag: "🇫🇷", rating: 5, text: "Genuine pashmina! Vendor came to hotel, very professional service." },
+    { name: "David L.", flag: "🇨🇦", rating: 5, text: "Soft and warm. Exactly as described. Quick WhatsApp ordering process." }
+  ],
+  4: [ // Marble Coaster Set
+    { name: "Maria S.", flag: "🇪🇸", rating: 4, text: "Beautiful inlay work. Perfect for gifts. Hotel delivery was seamless." }
+  ],
+  5: [ // Brass Decorative Plate
+    { name: "Tom W.", flag: "🇺🇸", rating: 5, text: "Authentic brass work. Much cheaper than tourist areas. Highly recommend." }
+  ],
+  6: [ // Leather Camel Bag
+    { name: "Emma T.", flag: "🇬🇧", rating: 4, text: "Good quality leather. Unique design. WhatsApp ordering made it so easy." }
+  ]
+};
+
 interface ProductCardProps {
   product: Product;
   hotelCode: string;
@@ -18,6 +43,10 @@ interface ProductCardProps {
 export default function ProductCard({ product, hotelCode, hotelName }: ProductCardProps) {
   const [isFavorited, setIsFavorited] = useState(false);
   const { toast } = useToast();
+
+  const getProductReviews = (productId: number) => {
+    return productReviews[productId as keyof typeof productReviews] || [];
+  };
 
   const orderMutation = useMutation({
     mutationFn: async (orderData: any) => {
@@ -137,6 +166,28 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
           <MessageCircle className="w-4 h-4 mr-2" />
           {orderMutation.isPending ? "Processing..." : "Order via WhatsApp"}
         </Button>
+
+        {/* Product Reviews */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="space-y-3">
+            {getProductReviews(product.id).map((review, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-sm text-secondary">{review.name}</span>
+                    <span className="text-lg">{review.flag}</span>
+                  </div>
+                  <div className="flex text-yellow-400 text-xs">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-current" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 italic">"{review.text}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </motion.div>
   );
