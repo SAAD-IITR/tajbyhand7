@@ -1,17 +1,18 @@
-import { useSearchParams } from "wouter";
+import { useLocation } from "wouter";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
 import TrustIndicators from "@/components/trust-indicators";
 import ComparisonTable from "@/components/comparison-table";
 import ProductGrid from "@/components/product-grid";
-import ProcessSection from "@/components/process-section";
+// ProcessSection is defined below
 import FAQSection from "@/components/faq-section";
 import Testimonials from "@/components/testimonials";
 import Footer from "@/components/footer";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
 
 export default function Home() {
-  const [searchParams] = useSearchParams();
+  const [location] = useLocation();
+  const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const hotelCode = searchParams.get("hotel") || "pearl";
   
   const hotelNames: Record<string, string> = {
