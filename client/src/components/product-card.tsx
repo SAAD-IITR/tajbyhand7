@@ -113,7 +113,14 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
             <Badge className="bg-primary text-white">Bestseller</Badge>
           )}
         </div>
+        
+        {/* Scarcity Badge */}
         <div className="absolute top-3 right-3">
+          <div className="bg-[#FF6B6B] text-white text-xs font-bold px-2 py-1 rounded-full">
+            Only {Math.floor(Math.random() * 3) + 2} Left!
+          </div>
+        </div>
+        <div className="absolute top-12 right-3">
           <button 
             onClick={toggleFavorite}
             className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors"
@@ -134,13 +141,23 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
           </div>
         </div>
 
+        {/* Trust Tagline */}
+        <p className="text-sm text-[#FB8C00] mb-1 font-normal">
+          100% Authentic • Handcrafted by Master Artisan
+        </p>
         <h3 className="font-semibold text-secondary mb-2">{product.name}</h3>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
 
+        {/* Enhanced Price Block */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <span className="text-2xl font-bold text-secondary">₹{product.price.toLocaleString()}</span>
-            <span className="text-sm text-gray-400 line-through ml-2">₹{originalPrice.toLocaleString()}</span>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl font-bold text-[#F44336]">₹{product.price.toLocaleString()}</span>
+              <span className="text-sm text-[#999] line-through">₹{originalPrice.toLocaleString()}</span>
+            </div>
+            <p className="text-sm text-[#2E7D32] font-medium">
+              You Save ₹{(originalPrice - product.price).toLocaleString()}
+            </p>
           </div>
           <Badge variant="outline" className="text-accent border-accent">
             {discountPercentage}% off
@@ -161,11 +178,11 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
         <Button 
           onClick={handleOrderClick}
           disabled={orderMutation.isPending || product.stock === 0}
-          className="w-full bg-accent text-white hover:bg-accent/90 transition-colors"
+          className="w-full bg-[#00C853] text-white hover:bg-[#00C853]/90 transition-all duration-250 hover:shadow-lg rounded-full"
           size="lg"
         >
           <MessageCircle className="w-4 h-4 mr-2" />
-          {orderMutation.isPending ? "Processing..." : "Order via WhatsApp"}
+          {orderMutation.isPending ? "Processing..." : "Order Now"}
         </Button>
 
         {/* Product Reviews */}

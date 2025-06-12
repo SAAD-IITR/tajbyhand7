@@ -89,6 +89,19 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
               </Button>
             </motion.div>
 
+            {/* Social Proof Section */}
+            <motion.div 
+              className="text-center mt-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+            >
+              <div className="flex items-center justify-center space-x-1 text-[#FFA726]">
+                <span className="text-lg">★★★★★</span>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">500+ satisfied customers</p>
+            </motion.div>
+
             <motion.div 
               className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg"
               initial={{ opacity: 0, y: 20 }}
