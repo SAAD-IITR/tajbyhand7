@@ -94,9 +94,9 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
 
   return (
     <motion.div 
-      className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.2 }}
+      className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:scale-[1.015]"
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <div className="relative overflow-hidden">
         <img 
@@ -155,8 +155,8 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
               <span className="text-2xl font-bold text-[#F44336]">₹{product.price.toLocaleString()}</span>
               <span className="text-sm text-[#999] line-through">₹{originalPrice.toLocaleString()}</span>
             </div>
-            <p className="text-sm text-[#2E7D32] font-medium">
-              You Save ₹{(originalPrice - product.price).toLocaleString()}
+            <p className="text-sm text-[#2E7D32] font-medium animate-pulse">
+              💰 You Save ₹{(originalPrice - product.price).toLocaleString()}
             </p>
           </div>
           <Badge variant="outline" className="text-accent border-accent">
@@ -178,7 +178,7 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
         <Button 
           onClick={handleOrderClick}
           disabled={orderMutation.isPending || product.stock === 0}
-          className="w-full bg-[#00C853] text-white hover:bg-[#00C853]/90 transition-all duration-250 hover:shadow-lg rounded-full"
+          className="w-full bg-[#00C853] text-white hover:bg-[#00C853]/90 hover:transform hover:-translate-y-1 transition-all duration-250 hover:shadow-xl rounded-full"
           size="lg"
         >
           <MessageCircle className="w-4 h-4 mr-2" />

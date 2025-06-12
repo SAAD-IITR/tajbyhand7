@@ -73,7 +73,7 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
             >
               <Button 
                 onClick={scrollToProducts}
-                className="bg-[#00C853] text-white px-8 py-4 text-lg hover:bg-[#00C853]/90 transition-all duration-250 hover:shadow-lg rounded-full"
+                className="px-8 py-4 text-lg hover:bg-[#f48115]/90 hover:transform hover:-translate-y-1 transition-all duration-250 hover:shadow-xl rounded-full bg-[#f48115] text-[#ffffff]"
                 size="lg"
               >
                 <ShoppingBag className="w-5 h-5 mr-2" />
@@ -81,7 +81,7 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
               </Button>
               <Button 
                 onClick={openWhatsApp}
-                className="bg-accent text-white px-8 py-4 text-lg hover:bg-accent/90 shadow-lg"
+                className="bg-accent text-white px-8 py-4 text-lg hover:bg-accent/90 hover:transform hover:-translate-y-1 transition-all duration-250 hover:shadow-xl rounded-full"
                 size="lg"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
