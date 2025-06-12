@@ -73,7 +73,7 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
             >
               <Button 
                 onClick={scrollToProducts}
-                className="bg-primary text-white px-8 py-4 text-lg hover:bg-primary/90 shadow-lg"
+                className="bg-[#00C853] text-white px-8 py-4 text-lg hover:bg-[#00C853]/90 transition-all duration-250 hover:shadow-lg rounded-full"
                 size="lg"
               >
                 <ShoppingBag className="w-5 h-5 mr-2" />

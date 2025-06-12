@@ -117,7 +117,7 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
         {/* Scarcity Badge */}
         <div className="absolute top-3 right-3">
           <div className="bg-[#FF6B6B] text-white text-xs font-bold px-2 py-1 rounded-full">
-            Only {Math.floor(Math.random() * 3) + 2} Left!
+            Only {product.stock <= 5 ? product.stock : Math.floor(product.id % 3) + 2} Left!
           </div>
         </div>
         <div className="absolute top-12 right-3">

@@ -17,7 +17,7 @@ export default function StickyWhatsAppMobile({ hotelName }: StickyWhatsAppMobile
       <div className="safe-area-inset-bottom">
         <motion.button
           onClick={handleClick}
-          className="w-full bg-accent text-white py-4 px-6 font-semibold text-lg shadow-xl flex items-center justify-center space-x-3 hover:bg-accent/90 transition-colors"
+          className="w-full bg-[#00C853] text-white py-4 px-6 font-semibold text-lg shadow-xl flex items-center justify-center space-x-3 hover:bg-[#00C853]/90 transition-all duration-250 hover:shadow-2xl"
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           transition={{ delay: 1.5, duration: 0.4 }}

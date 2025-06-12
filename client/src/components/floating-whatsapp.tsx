@@ -18,14 +18,14 @@ export default function FloatingWhatsApp({ hotelName }: FloatingWhatsAppProps) {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {/* Pulse ring animation */}
-      <div className="absolute inset-0 w-14 h-14 bg-accent rounded-full animate-ping opacity-20"></div>
-      <div className="absolute inset-1 w-12 h-12 bg-accent rounded-full animate-pulse opacity-30"></div>
+      <div className="absolute inset-0 w-14 h-14 bg-[#00C853] rounded-full animate-ping opacity-20"></div>
+      <div className="absolute inset-1 w-12 h-12 bg-[#00C853] rounded-full animate-pulse opacity-30"></div>
       
       <motion.button
         onClick={handleClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className="relative w-14 h-14 bg-accent text-white rounded-full shadow-xl hover:bg-accent/90 transition-all duration-300 flex items-center justify-center group border-2 border-white"
+        className="relative w-14 h-14 bg-[#00C853] text-white rounded-full shadow-xl hover:bg-[#00C853]/90 transition-all duration-300 flex items-center justify-center group border-2 border-white"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         initial={{ scale: 0 }}
