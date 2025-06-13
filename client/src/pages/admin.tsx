@@ -18,7 +18,7 @@ export default function Admin() {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const response = await apiRequest("POST", "/api/auth/login", credentials);
+      const response = await apiRequest("POST", "/auth/login", credentials);
       return response.json();
     },
     onSuccess: (data) => {
@@ -130,16 +130,16 @@ function ProductManagement() {
   const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/products"],
   });
 
   const createMutation = useMutation({
     mutationFn: async (product: any) => {
-      const response = await apiRequest("POST", "/api/products", product);
+      const response = await apiRequest("POST", "/products", product);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/products"] });
       setShowForm(false);
       toast({ title: "Success", description: "Product created successfully" });
     },
@@ -147,11 +147,11 @@ function ProductManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, product }: { id: number; product: any }) => {
-      const response = await apiRequest("PUT", `/api/products/${id}`, product);
+      const response = await apiRequest("PUT", `/products/${id}`, product);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/products"] });
       setEditingProduct(null);
       toast({ title: "Success", description: "Product updated successfully" });
     },
@@ -159,10 +159,10 @@ function ProductManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/products/${id}`);
+      await apiRequest("DELETE", `/products/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/products"] });
       toast({ title: "Success", description: "Product deleted successfully" });
     },
   });
@@ -434,16 +434,16 @@ function HotelManagement() {
   const { toast } = useToast();
 
   const { data: hotels, isLoading } = useQuery<Hotel[]>({
-    queryKey: ["/api/hotels"],
+    queryKey: ["/hotels"],
   });
 
   const createMutation = useMutation({
     mutationFn: async (hotel: any) => {
-      const response = await apiRequest("POST", "/api/hotels", hotel);
+      const response = await apiRequest("POST", "/hotels", hotel);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels"] });
+      queryClient.invalidateQueries({ queryKey: ["/hotels"] });
       setShowForm(false);
       toast({ title: "Success", description: "Hotel created successfully" });
     },
@@ -673,7 +673,7 @@ function HotelForm({
 
 function OrderManagement() {
   const { data: orders, isLoading } = useQuery<Order[]>({
-    queryKey: ["/api/orders"],
+    queryKey: ["/orders"],
   });
 
   const updateStatusMutation = useMutation({
