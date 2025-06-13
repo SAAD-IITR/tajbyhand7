@@ -1,88 +1,38 @@
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
 import TrustIndicators from "@/components/trust-indicators";
 import ComparisonTable from "@/components/comparison-table";
 import ProductGrid from "@/components/product-grid";
-// ProcessSection is defined below
 import FAQSection from "@/components/faq-section";
 import Testimonials from "@/components/testimonials";
 import Footer from "@/components/footer";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
 import StickyWhatsAppMobile from "@/components/sticky-whatsapp-mobile";
-import type { Hotel } from "@shared/schema";
 
 export default function Home() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
-  const hotelCode = searchParams.get("hotel") || "pearl";
+  const hotelCode = searchParams.get("hotel") || "";
   
-  // Fetch hotel data dynamically
-  const { data: hotel, isLoading, isError } = useQuery<Hotel>({
-    queryKey: [`/api/hotels/${hotelCode}`],
-    queryFn: async () => {
-      const response = await apiRequest("GET", `/api/hotels/${hotelCode}`);
-      if (!response.ok) {
-        throw new Error("Hotel not found");
-      }
-      return response.json();
-    },
-    enabled: !!hotelCode,
-    retry: false,
-  });
-  
-  // Fallback hotel name
-  const hotelName = hotel?.hotelName || 'Our Partner Hotel';
-  
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // Show error state for invalid hotel codes
-  if (isError || !hotel) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Hotel Not Found</h1>
-          <p className="text-gray-600 mb-6">
-            The hotel code "{hotelCode}" is not recognized. Please check the QR code or contact your hotel reception.
-          </p>
-          <a 
-            href="/" 
-            className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Continue Anyway
-          </a>
-        </div>
-      </div>
-    );
-  }
+  // Simple business name - you can customize this
+  const businessName = hotelCode ? `Recommended by ${hotelCode.toUpperCase()}` : 'TajByHand';
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="main-content">
-        <HeroSection hotelName={hotelName} />
+        <HeroSection hotelName={businessName} />
         <TrustIndicators />
         <ComparisonTable />
-        <ProductGrid hotelCode={hotelCode} hotelName={hotelName} />
+        <ProductGrid hotelCode={hotelCode} hotelName={businessName} />
         <ProcessSection />
         <FAQSection />
         <Testimonials />
       </div>
       <Footer />
-      <FloatingWhatsApp hotelName={hotelName} />
-      <StickyWhatsAppMobile hotelName={hotelName} />
+      <FloatingWhatsApp hotelName={businessName} />
+      <StickyWhatsAppMobile hotelName={businessName} />
     </div>
   );
 }
@@ -94,30 +44,30 @@ function ProcessSection() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-secondary mb-4">How It Works</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Simple, safe, and fast. Get authentic handicrafts delivered directly to your hotel room in under an hour.
+            Simple, safe, and fast. Get authentic handicrafts delivered directly to you in Agra.
           </p>
         </div>
         <div className="grid md:grid-cols-4 gap-8">
           {[
             {
               icon: "📱",
-              title: "Scan QR Code",
-              description: "Find the TajByHand QR code at your hotel reception and scan it"
-            },
-            {
-              icon: "🛍️",
-              title: "Browse & Select",
+              title: "Browse Products",
               description: "Choose from our curated collection of authentic Agra handicrafts"
             },
             {
               icon: "💬",
               title: "Order via WhatsApp",
-              description: "Click order and WhatsApp opens with your hotel details pre-filled"
+              description: "Click order and WhatsApp opens with your details pre-filled"
             },
             {
               icon: "🚚",
-              title: "Receive at Hotel",
-              description: "Get your handicrafts delivered to your room within 30-60 minutes"
+              title: "Fast Delivery",
+              description: "Get your handicrafts delivered within 1-2 hours in Agra"
+            },
+            {
+              icon: "✅",
+              title: "Enjoy Your Purchase",
+              description: "Authentic handicrafts delivered to your doorstep"
             }
           ].map((step, index) => (
             <div key={index} className="text-center">

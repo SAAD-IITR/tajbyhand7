@@ -12,7 +12,7 @@ interface ProductGridProps {
 
 export default function ProductGrid({ hotelCode, hotelName }: ProductGridProps) {
   const { data: products, isLoading, error } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/products"],
     refetchOnWindowFocus: false,
     retry: false,
   });
@@ -54,7 +54,7 @@ export default function ProductGrid({ hotelCode, hotelName }: ProductGridProps) 
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Authentic Agra handicrafts delivered directly to your hotel room. 
+            Authentic Agra handicrafts delivered directly to you. 
             Each piece tells a story of traditional craftsmanship.
           </motion.p>
         </div>
