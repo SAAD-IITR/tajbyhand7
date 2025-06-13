@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { generateWhatsAppURL } from "@/lib/whatsapp";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
+import clsx from "clsx";
 
 // Product reviews data for trust building
 const productReviews = {
@@ -92,6 +93,21 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
   const originalPrice = Math.round(product.price * 2.8);
   const discountPercentage = Math.round(((originalPrice - product.price) / originalPrice) * 100);
 
+  // FOMO logic for Jewellery Box
+  const isJewelleryBox = /jewell?ery box/i.test(product.name);
+  const isLowStock = product.stock <= 5;
+
+  // Simulate 'people viewing' and 'recently purchased'
+  const [viewers, setViewers] = useState(Math.floor(Math.random() * 5) + 2);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setViewers(Math.floor(Math.random() * 5) + 2);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+  const isBestseller = product.isFeatured;
+  const isMostPopular = product.id % 2 === 0;
+
   return (
     <motion.div 
       className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:scale-[1.015]"
@@ -108,18 +124,40 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
             e.currentTarget.src = "https://via.placeholder.com/400x300?text=Product+Image";
           }}
         />
-        <div className="absolute top-3 left-3">
-          {product.isFeatured && (
-            <Badge className="bg-primary text-white">Bestseller</Badge>
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {isBestseller && (
+            <Badge className="bg-primary text-white animate-pulse">Bestseller</Badge>
+          )}
+          {isMostPopular && (
+            <Badge className="bg-accent text-white animate-bounce">Most Popular</Badge>
           )}
         </div>
-        
-        {/* Scarcity Badge */}
-        <div className="absolute top-3 right-3">
-          <div className="bg-[#FF6B6B] text-white text-xs font-bold px-2 py-1 rounded-full">
-            Only {product.stock <= 5 ? product.stock : Math.floor(product.id % 3) + 2} Left!
+        {/* FOMO Scarcity Badge for Jewellery Box */}
+        {isJewelleryBox && isLowStock && (
+          <div className="absolute top-3 right-3 z-20 animate-shake">
+            <div className={clsx(
+              "bg-gradient-to-r from-[#FF512F] to-[#F09819] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse border-2 border-white",
+              "flex items-center gap-1"
+            )}>
+              <span className="animate-bounce">🔥</span>
+              Only {product.stock} left! Selling Fast
+            </div>
+            <div className="w-24 h-2 bg-gray-200 rounded-full mt-1">
+              <div className="h-2 bg-red-500 rounded-full animate-pulse" style={{ width: `${100 - product.stock * 15}%` }}></div>
+            </div>
           </div>
-        </div>
+        )}
+        {/* General Scarcity Badge for other low-stock products */}
+        {!isJewelleryBox && isLowStock && (
+          <div className="absolute top-3 right-3 z-10 animate-shake">
+            <div className="bg-[#FF6B6B] text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+              Only {product.stock} Left!
+            </div>
+            <div className="w-20 h-2 bg-gray-200 rounded-full mt-1">
+              <div className="h-2 bg-orange-500 rounded-full animate-pulse" style={{ width: `${100 - product.stock * 15}%` }}></div>
+            </div>
+          </div>
+        )}
         <div className="absolute top-12 right-3">
           <button 
             onClick={toggleFavorite}
@@ -127,6 +165,10 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
           >
             <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current text-red-500' : ''}`} />
           </button>
+        </div>
+        {/* People viewing now */}
+        <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-3 py-1 rounded-full animate-fadeIn">
+          👀 {viewers} people are viewing this now
         </div>
       </div>
 
@@ -141,6 +183,10 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
           </div>
         </div>
 
+        {/* Recently purchased */}
+        <div className="text-xs text-green-700 mb-1 animate-fadeIn">
+          Recently purchased by guests at {hotelName}
+        </div>
         {/* Trust Tagline */}
         <p className="text-sm text-[#FB8C00] mb-1 font-normal">
           100% Authentic • Handcrafted by Master Artisan
@@ -175,15 +221,21 @@ export default function ProductCard({ product, hotelCode, hotelName }: ProductCa
           </div>
         </div>
 
-        <Button 
-          onClick={handleOrderClick}
-          disabled={orderMutation.isPending || product.stock === 0}
-          className="w-full bg-[#00C853] text-white hover:bg-[#00C853]/90 hover:transform hover:-translate-y-1 transition-all duration-250 hover:shadow-xl rounded-full"
-          size="lg"
-        >
-          <MessageCircle className="w-4 h-4 mr-2" />
-          {orderMutation.isPending ? "Processing..." : "Order Now"}
-        </Button>
+        <div className="flex flex-col gap-2 mb-2">
+          <Button 
+            onClick={handleOrderClick}
+            disabled={orderMutation.isPending || product.stock === 0}
+            className="w-full bg-[#00C853] text-white hover:bg-[#00C853]/90 hover:transform hover:-translate-y-1 transition-all duration-250 hover:shadow-xl rounded-full"
+            size="lg"
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
+            {orderMutation.isPending ? "Processing..." : "Order Now"}
+          </Button>
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
+            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">No payment until delivery</span>
+            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">100% satisfaction</span>
+          </div>
+        </div>
 
         {/* Product Reviews */}
         <div className="mt-4 pt-4 border-t border-gray-100">

@@ -1,4 +1,4 @@
-import { Menu, Shield, GraduationCap } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function Header() {
   return (

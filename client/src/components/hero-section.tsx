@@ -2,13 +2,13 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ShoppingBag, MessageCircle, IdCard } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface HeroSectionProps {
   hotelName: string;
-  hotelCode: string;
 }
 
-export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) {
+export default function HeroSection({ hotelName }: HeroSectionProps) {
   const scrollToProducts = () => {
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -19,6 +19,23 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappURL, '_blank');
   };
+
+  // Countdown timer for 'Today Only' offer
+  const [timer, setTimer] = useState(0);
+  useEffect(() => {
+    // Set timer to midnight
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(23, 59, 59, 999);
+    setTimer(Math.floor((midnight.getTime() - now.getTime()) / 1000));
+    const interval = setInterval(() => {
+      setTimer((t) => (t > 0 ? t - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+  const hours = Math.floor(timer / 3600);
+  const minutes = Math.floor((timer % 3600) / 60);
+  const seconds = timer % 60;
 
   return (
     <section className="relative bg-gradient-to-br from-primary/10 to-amber-50 py-16 lg:py-24 overflow-hidden">
@@ -54,6 +71,15 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
               Authentic Agra{" "}
               <span className="text-primary">Handicrafts</span>
             </motion.h2>
+            <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
+              <span className="inline-flex items-center bg-green-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow animate-pulse">
+                🎁 Today Only: Free Hotel Delivery
+              </span>
+              <span className="inline-flex items-center bg-black/80 text-white text-xs font-mono px-3 py-1 rounded-full">
+                ⏰ Ends in {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+              </span>
+            </div>
+            <div className="text-sm text-accent font-semibold mb-4">Trusted by 10+ Agra hotels</div>
 
             <motion.p 
               className="text-xl text-gray-600 mb-8 leading-relaxed"
@@ -156,12 +182,13 @@ export default function HeroSection({ hotelName, hotelCode }: HeroSectionProps) 
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img 
-                src="https://pixabay.com/get/gc8745debbad7a3449b142f6ebe942237e02afee4581a9f5d03a5552573b84dcae1b8cddd69c887c303040e6e0fb5f59920edf7c7f42eb3046c62c599ed98f246_1280.jpg" 
-                alt="Handmade marble inlay Taj Mahal replica from Agra delivered to hotel" 
+                src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=900&q=80" 
+                alt="Taj Mahal in Agra, India" 
                 className="w-full h-auto" 
                 loading="lazy"
+                style={{ filter: 'contrast(1.08) brightness(1.08)' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <div className="flex items-center space-x-2 mb-2">
                   <IdCard className="w-5 h-5 text-primary" />

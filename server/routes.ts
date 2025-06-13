@@ -3,7 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { insertProductSchema, insertOrderSchema, insertUserSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertUserSchema, insertHotelSchema } from "@shared/schema";
+import path from "path";
+import fs from "fs";
+import multer from "multer";
+import express from "express";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
 
@@ -26,6 +30,20 @@ const verifyToken = (req: any, res: any, next: any) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Placeholder image route for development
+  app.get("/api/placeholder/:width/:height", (req, res) => {
+    const { width, height } = req.params;
+    const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f4f6"/>
+      <text x="50%" y="50%" text-anchor="middle" dy="0.3em" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">
+        ${width}x${height}
+      </text>
+    </svg>`;
+    
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.send(svg);
+  });
   
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
@@ -200,6 +218,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/hotels", verifyToken, async (req, res) => {
+    try {
+      const validatedData = insertHotelSchema.parse(req.body);
+      const hotel = await storage.createHotel(validatedData);
+      res.status(201).json(hotel);
+    } catch (error) {
+      console.error("Create hotel error:", error);
+      res.status(500).json({ message: "Failed to create hotel" });
+    }
+  });
+
   app.get("/api/hotels/:code", async (req, res) => {
     try {
       const hotelCode = req.params.code;
@@ -216,6 +245,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/hotels/:code/qr", verifyToken, async (req, res) => {
+    try {
+      const hotelCode = req.params.code;
+      const hotel = await storage.getHotelByCode(hotelCode);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const baseUrl = process.env.BASE_URL || `http://localhost:5000`;
+      const trackingUrl = `${baseUrl}/?hotel=${hotelCode}`;
+      
+      // Generate QR code SVG
+      const qrSvg = `<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="white"/>
+        <rect x="20" y="20" width="160" height="160" fill="none" stroke="black" stroke-width="2"/>
+        <text x="100" y="100" text-anchor="middle" font-family="Arial" font-size="12" fill="black">QR CODE</text>
+        <text x="100" y="120" text-anchor="middle" font-family="Arial" font-size="8" fill="black">${hotelCode.toUpperCase()}</text>
+      </svg>`;
+      
+      res.json({
+        qrCode: qrSvg,
+        trackingUrl,
+        hotel: hotel
+      });
+    } catch (error) {
+      console.error("Generate QR error:", error);
+      res.status(500).json({ message: "Failed to generate QR code" });
+    }
+  });
+
   // Commission reports
   app.get("/api/reports/commissions", verifyToken, async (req, res) => {
     try {
@@ -225,6 +285,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Get commission report error:", error);
       res.status(500).json({ message: "Failed to fetch commission report" });
     }
+  });
+
+  // Serve product images
+  app.use("/assets/products", express.static(path.join(process.cwd(), "attached_assets/products")));
+
+  // File upload endpoint
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dir = path.join(process.cwd(), "attached_assets/products");
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+      },
+      filename: (req, file, cb) => {
+        // Use timestamp + original name for uniqueness
+        const uniqueName = `${Date.now()}-${file.originalname}`;
+        cb(null, uniqueName);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith("image/")) cb(null, true);
+      else cb(new Error("Only image files are allowed!"));
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  });
+
+  app.post("/api/upload", upload.single("file"), (req, res) => {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    const url = `/assets/products/${req.file.filename}`;
+    res.json({ url });
   });
 
   const httpServer = createServer(app);

@@ -1,7 +1,7 @@
 // Central configuration for the application
 export const APP_CONFIG = {
   // WhatsApp configuration - easily replaceable
-  WHATSAPP_NUMBER: import.meta.env.VITE_WHATSAPP_NUMBER || "7417994386",
+  WHATSAPP_NUMBER: "7417994386",
   
   // Business information
   BUSINESS_NAME: "TajByHand",
@@ -32,4 +32,12 @@ export const ANIMATION_CONFIG = {
   SLIDE_DURATION: 0.8,
   HOVER_SCALE: 1.05,
   BUTTON_PULSE_DELAY: 1.5,
+};
+
+export const CONFIG = {
+  API_BASE_URL: "http://localhost:5000",
+  SITE_NAME: "TajbyHand",
+  WHATSAPP_NUMBER: "7417994386",
+  ADMIN_USERNAME: "admin",
+  ADMIN_PASSWORD: "admin123"
 };

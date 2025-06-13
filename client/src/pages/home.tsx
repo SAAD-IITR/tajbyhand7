@@ -1,4 +1,6 @@
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
 import TrustIndicators from "@/components/trust-indicators";
@@ -10,25 +12,67 @@ import Testimonials from "@/components/testimonials";
 import Footer from "@/components/footer";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
 import StickyWhatsAppMobile from "@/components/sticky-whatsapp-mobile";
+import type { Hotel } from "@shared/schema";
 
 export default function Home() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const hotelCode = searchParams.get("hotel") || "pearl";
   
-  const hotelNames: Record<string, string> = {
-    'pearl': 'Pearl Heritage Hotel',
-    'taj': 'Taj Hotel & Convention Centre',
-    'oberoi': 'The Oberoi Amarvilas'
-  };
+  // Fetch hotel data dynamically
+  const { data: hotel, isLoading, isError } = useQuery<Hotel>({
+    queryKey: [`/api/hotels/${hotelCode}`],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/hotels/${hotelCode}`);
+      if (!response.ok) {
+        throw new Error("Hotel not found");
+      }
+      return response.json();
+    },
+    enabled: !!hotelCode,
+    retry: false,
+  });
   
-  const hotelName = hotelNames[hotelCode] || 'Pearl Heritage Hotel';
+  // Fallback hotel name
+  const hotelName = hotel?.hotelName || 'Our Partner Hotel';
+  
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state for invalid hotel codes
+  if (isError || !hotel) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Hotel Not Found</h1>
+          <p className="text-gray-600 mb-6">
+            The hotel code "{hotelCode}" is not recognized. Please check the QR code or contact your hotel reception.
+          </p>
+          <a 
+            href="/" 
+            className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Continue Anyway
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="main-content">
-        <HeroSection hotelName={hotelName} hotelCode={hotelCode} />
+        <HeroSection hotelName={hotelName} />
         <TrustIndicators />
         <ComparisonTable />
         <ProductGrid hotelCode={hotelCode} hotelName={hotelName} />

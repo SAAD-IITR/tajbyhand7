@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import type { Product, Order } from "@shared/schema";
+import type { Product, Order, Hotel } from "@shared/schema";
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -98,12 +98,17 @@ export default function Admin() {
         <Tabs defaultValue="products">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="hotels">Hotels</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
             <ProductManagement />
+          </TabsContent>
+
+          <TabsContent value="hotels">
+            <HotelManagement />
           </TabsContent>
 
           <TabsContent value="orders">
@@ -258,9 +263,45 @@ function ProductForm({
     stock: product?.stock || 0,
     isFeatured: product?.isFeatured || false,
   });
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isUploadedImage = formData.imageUrl.startsWith("/assets/products/");
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+      setFormData(prev => ({ ...prev, imageUrl: data.url }));
+    } catch (err) {
+      setError("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleClearImage = () => {
+    setFormData(prev => ({ ...prev, imageUrl: "" }));
+    setError("");
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    if (!formData.imageUrl) {
+      setError("Please provide an image URL or upload a file.");
+      return;
+    }
     onSubmit(formData);
   };
 
@@ -301,14 +342,46 @@ function ProductForm({
             />
           </div>
           <div>
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-              required
-            />
+            <Label htmlFor="imageUrl">Product Image</Label>
+            <div className="flex items-center space-x-4">
+              {!isUploadedImage && (
+                <Input
+                  id="imageUrl"
+                  type="url"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                  placeholder="Paste image URL or upload file"
+                />
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <Button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : isUploadedImage ? "Re-upload" : "Upload"}
+              </Button>
+              {isUploadedImage && (
+                <Button type="button" variant="outline" onClick={handleClearImage}>
+                  Clear
+                </Button>
+              )}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">You can either paste an image URL or upload a file from your computer.</div>
+            {formData.imageUrl && (
+              <img
+                src={formData.imageUrl}
+                alt="Preview"
+                className="mt-2 w-32 h-32 object-cover rounded border"
+              />
+            )}
+            {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -344,6 +417,249 @@ function ProductForm({
           <div className="flex space-x-2">
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save"}
+            </Button>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HotelManagement() {
+  const [showForm, setShowForm] = useState(false);
+  const [showQR, setShowQR] = useState<{hotel: Hotel, qrData: any} | null>(null);
+  const { toast } = useToast();
+
+  const { data: hotels, isLoading } = useQuery<Hotel[]>({
+    queryKey: ["/api/hotels"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (hotel: any) => {
+      const response = await apiRequest("POST", "/api/hotels", hotel);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels"] });
+      setShowForm(false);
+      toast({ title: "Success", description: "Hotel created successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to create hotel", variant: "destructive" });
+    },
+  });
+
+  const generateQRMutation = useMutation({
+    mutationFn: async (hotelCode: string) => {
+      const response = await apiRequest("GET", `/api/hotels/${hotelCode}/qr`);
+      return response.json();
+    },
+    onSuccess: (data, hotelCode) => {
+      const hotel = hotels?.find(h => h.hotelCode === hotelCode);
+      if (hotel) {
+        setShowQR({ hotel, qrData: data });
+      }
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to generate QR code", variant: "destructive" });
+    },
+  });
+
+  if (isLoading) return <div>Loading hotels...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Hotel Management</h2>
+        <Button onClick={() => setShowForm(true)}>Add Hotel</Button>
+      </div>
+
+      {showForm && (
+        <HotelForm
+          onSubmit={(data) => createMutation.mutate(data)}
+          onCancel={() => setShowForm(false)}
+          isLoading={createMutation.isPending}
+        />
+      )}
+
+      {showQR && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">QR Code for {showQR.hotel.hotelName}</h3>
+              <Button variant="ghost" onClick={() => setShowQR(null)}>×</Button>
+            </div>
+            <div className="text-center space-y-4">
+              <div dangerouslySetInnerHTML={{ __html: showQR.qrData.qrCode }} />
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Tracking URL:</p>
+                <p className="text-xs bg-gray-100 p-2 rounded break-all">{showQR.qrData.trackingUrl}</p>
+              </div>
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(showQR.qrData.trackingUrl);
+                    toast({ title: "Copied!", description: "URL copied to clipboard" });
+                  }}
+                  variant="outline"
+                >
+                  Copy URL
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const blob = new Blob([showQR.qrData.qrCode], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${showQR.hotel.hotelCode}-qr.svg`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  Download QR
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-4">
+        {hotels?.map((hotel) => (
+          <Card key={hotel.id}>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold">{hotel.hotelName}</h3>
+                  <p className="text-sm text-gray-600">Code: {hotel.hotelCode}</p>
+                  <p className="text-sm text-gray-600">Commission: {hotel.commissionRate}%</p>
+                  <p className="text-xs text-gray-500">Created: {new Date(hotel.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    onClick={() => generateQRMutation.mutate(hotel.hotelCode)}
+                    disabled={generateQRMutation.isPending}
+                  >
+                    {generateQRMutation.isPending ? "Generating..." : "Generate QR"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {hotels?.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">No hotels added yet. Click "Add Hotel" to get started.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HotelForm({
+  onSubmit,
+  onCancel,
+  isLoading,
+}: {
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    hotelName: "",
+    hotelCode: "",
+    commissionRate: "10.00",
+  });
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '')
+      .slice(0, 10);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.hotelName.trim()) {
+      return;
+    }
+
+    const hotelCode = formData.hotelCode || generateSlug(formData.hotelName);
+    
+    onSubmit({
+      hotelName: formData.hotelName.trim(),
+      hotelCode: hotelCode,
+      commissionRate: formData.commissionRate,
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Add New Hotel</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="hotelName">Hotel Name</Label>
+            <Input
+              id="hotelName"
+              value={formData.hotelName}
+              onChange={(e) => {
+                const name = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  hotelName: name,
+                  hotelCode: prev.hotelCode || generateSlug(name)
+                }));
+              }}
+              placeholder="e.g., Royal Taj Hotel"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="hotelCode">Hotel Code (URL slug)</Label>
+            <Input
+              id="hotelCode"
+              value={formData.hotelCode}
+              onChange={(e) => setFormData(prev => ({ ...prev, hotelCode: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
+              placeholder="e.g., royaltaj"
+              pattern="[a-z0-9]+"
+              title="Only lowercase letters and numbers allowed"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This will create: {window.location.origin}/?hotel={formData.hotelCode}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+            <Input
+              id="commissionRate"
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={formData.commissionRate}
+              onChange={(e) => setFormData(prev => ({ ...prev, commissionRate: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="flex space-x-2">
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create Hotel"}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
@@ -433,20 +749,104 @@ function ReportsSection() {
 
   if (isLoading) return <div>Loading reports...</div>;
 
+  const commissionList = Array.isArray(commissions) ? commissions : [];
+
+  const totalCommissions = commissionList.reduce((sum: number, report: any) => sum + (report.commissionAmount || 0), 0);
+  const totalRevenue = commissionList.reduce((sum: number, report: any) => sum + (report.totalRevenue || 0), 0);
+  const totalOrders = commissionList.reduce((sum: number, report: any) => sum + (report.fulfilledOrders || 0), 0);
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Commission Reports</h2>
-      <div className="grid gap-4">
-        {commissions?.map((report: any) => (
-          <Card key={report.hotelCode}>
-            <CardContent className="p-4">
-              <h3 className="font-semibold">{report.hotelCode}</h3>
-              <p>Total Orders: {report.totalOrders}</p>
-              <p>Fulfilled Orders: {report.fulfilledOrders}</p>
-              <p>Conversion Rate: {((report.fulfilledOrders / report.totalOrders) * 100).toFixed(1)}%</p>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Hotel Commission Dashboard</h2>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-600">₹{totalCommissions.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Total Commission</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-blue-600">₹{totalRevenue.toLocaleString()}</p>
+              <p className="text-sm text-gray-600">Total Revenue</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-purple-600">{totalOrders}</p>
+              <p className="text-sm text-gray-600">Total Orders</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Hotel-wise Commission Details */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Hotel-wise Commission Report</h3>
+        {commissionList.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">No commission data available yet. Orders will appear here once hotels start generating sales.</p>
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          <div className="grid gap-4">
+            {commissionList.map((report: any) => (
+              <Card key={report.hotelCode}>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="font-semibold text-lg">{report.hotelName}</h4>
+                      <p className="text-sm text-gray-600">Code: {report.hotelCode}</p>
+                    </div>
+                    <Badge variant="outline">
+                      {report.commissionRate}% Commission
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <p className="text-lg font-bold">{report.totalOrders}</p>
+                      <p className="text-xs text-gray-600">Total Orders</p>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <p className="text-lg font-bold text-green-700">{report.fulfilledOrders}</p>
+                      <p className="text-xs text-gray-600">Fulfilled</p>
+                    </div>
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <p className="text-lg font-bold text-blue-700">₹{(report.totalRevenue || 0).toLocaleString()}</p>
+                      <p className="text-xs text-gray-600">Revenue</p>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <p className="text-lg font-bold text-purple-700">₹{(report.commissionAmount || 0).toLocaleString()}</p>
+                      <p className="text-xs text-gray-600">Commission</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">
+                        Conversion Rate: {report.totalOrders > 0 ? ((report.fulfilledOrders / report.totalOrders) * 100).toFixed(1) : 0}%
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        Avg. Order Value: ₹{report.fulfilledOrders > 0 ? Math.round(report.totalRevenue / report.fulfilledOrders) : 0}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ProductCard from "./product-card";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@shared/schema";
+import { mockProducts } from "@/lib/mock-data";
 
 interface ProductGridProps {
   hotelCode: string;
@@ -13,9 +14,13 @@ export default function ProductGrid({ hotelCode, hotelName }: ProductGridProps) 
   const { data: products, isLoading, error } = useQuery<Product[]>({
     queryKey: ["/api/products"],
     refetchOnWindowFocus: false,
+    retry: false,
   });
 
-  if (error) {
+  // Use mock data if API fails or in development
+  const displayProducts = products || mockProducts;
+
+  if (error && !displayProducts.length) {
     return (
       <section id="products" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -34,18 +39,25 @@ export default function ProductGrid({ hotelCode, hotelName }: ProductGridProps) 
   return (
     <section id="products" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-3xl font-bold text-secondary mb-4">Authentic Handicrafts Collection</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Each piece is carefully selected from skilled artisans in Agra. All items are available for immediate delivery to your hotel.
-          </p>
-        </motion.div>
+        <div className="text-center mb-12">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Handcrafted Treasures
+          </motion.h2>
+          <motion.p 
+            className="text-lg text-gray-600 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Authentic Agra handicrafts delivered directly to your hotel room. 
+            Each piece tells a story of traditional craftsmanship.
+          </motion.p>
+        </div>
 
         {/* Filter Tabs */}
         <motion.div 
@@ -71,67 +83,51 @@ export default function ProductGrid({ hotelCode, hotelName }: ProductGridProps) 
           </div>
         </motion.div>
 
-        {/* Product Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl shadow-lg p-6 animate-pulse">
-                <div className="w-full h-64 bg-gray-200 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                <div className="h-6 bg-gray-200 rounded mb-4 w-1/2"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
+              <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-96"></div>
             ))}
           </div>
-        ) : products && products.length > 0 ? (
+        ) : (
           <motion.div 
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {products.map((product, index) => (
+            {displayProducts.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.4 }}
-                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
               >
                 <ProductCard 
                   product={product} 
-                  hotelCode={hotelCode} 
-                  hotelName={hotelName} 
+                  hotelCode={hotelCode}
+                  hotelName={hotelName}
                 />
               </motion.div>
             ))}
           </motion.div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Products Available</h3>
-              <p className="text-gray-600">
-                Our product catalog is currently being updated. Please check back soon or contact us via WhatsApp for current availability.
-              </p>
-            </div>
-          </div>
         )}
 
         <motion.div 
           className="text-center mt-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
         >
           <Button 
-            variant="outline" 
-            className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3"
-            size="lg"
+            size="lg" 
+            className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3"
+            onClick={() => {
+              const whatsappUrl = `https://wa.me/919876543210?text=Hi! I'm interested in your handcrafted products. I'm staying at ${hotelName}. Can you show me more items?`;
+              window.open(whatsappUrl, '_blank');
+            }}
           >
-            View More Handicrafts
+            View More Products on WhatsApp
           </Button>
         </motion.div>
       </div>

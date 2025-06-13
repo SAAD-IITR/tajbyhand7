@@ -92,6 +92,16 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  /* Enhanced button animations */
+  .animate-idle-pulse {
+    animation: idlePulse 3s ease-in-out infinite;
+  }
+
+  @keyframes idlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
   /* Mobile responsive improvements */
   @media (max-width: 768px) {
     .main-content {
