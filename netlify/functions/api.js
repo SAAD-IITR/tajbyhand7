@@ -9,24 +9,56 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Simple API routes for deployment
-app.get('/api/test', (req, res) => {
+// Test endpoint
+app.get('/test', (req, res) => {
   res.json({ message: 'TajByHand API is working!', timestamp: new Date().toISOString() });
 });
 
-// Hotels API
-app.get('/api/hotels/:code', (req, res) => {
+// Hotels API - Fixed path handling for Netlify
+app.get('/hotels/:code', (req, res) => {
   const { code } = req.params;
-  res.json({
-    id: 1,
-    hotelCode: code,
-    hotelName: `Hotel ${code.charAt(0).toUpperCase() + code.slice(1)}`,
-    commissionRate: 10,
-    qrCode: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`
-  });
+  console.log('Hotel request for code:', code);
+  
+  // Mock hotel data - in production this would come from database
+  const hotels = {
+    'pearl': {
+      id: 1,
+      hotelCode: 'pearl',
+      hotelName: 'Hotel Pearl Plaza',
+      commissionRate: 15,
+      qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+    },
+    'grand': {
+      id: 2,
+      hotelCode: 'grand',
+      hotelName: 'Grand Hotel Agra',
+      commissionRate: 12,
+      qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+    },
+    'plaza': {
+      id: 3,
+      hotelCode: 'plaza',
+      hotelName: 'Plaza Inn Agra',
+      commissionRate: 10,
+      qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+    }
+  };
+
+  const hotel = hotels[code.toLowerCase()];
+  
+  if (!hotel) {
+    return res.status(404).json({ 
+      error: 'Hotel not found',
+      message: `Hotel with code '${code}' not found`,
+      availableCodes: Object.keys(hotels)
+    });
+  }
+  
+  res.json(hotel);
 });
 
-app.get('/api/products', (req, res) => {
+// Products API
+app.get('/products', (req, res) => {
   res.json([
     {
       id: 1,
@@ -43,8 +75,34 @@ app.get('/api/products', (req, res) => {
       price: 1200,
       image: "/api/placeholder/300/300",
       category: "Leather Goods"
+    },
+    {
+      id: 3,
+      name: "Inlay Work Box",
+      description: "Intricate marble inlay jewelry box",
+      price: 800,
+      image: "/api/placeholder/300/300",
+      category: "Marble Crafts"
+    },
+    {
+      id: 4,
+      name: "Brass Handicraft",
+      description: "Traditional brass decorative items",
+      price: 650,
+      image: "/api/placeholder/300/300",
+      category: "Brass Work"
     }
   ]);
+});
+
+// Health check
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'TajByHand API Server',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    endpoints: ['/test', '/hotels/:code', '/products']
+  });
 });
 
 // Export the serverless function

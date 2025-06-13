@@ -1,7 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? "https://tajbyhand-api.onrender.com" 
+  ? "/.netlify/functions/api"  // Netlify Functions path
   : "http://localhost:5000";
 
 async function throwIfResNotOk(res: Response) {
